@@ -24,6 +24,9 @@ import util.Reader;
 
 public class PequeSpidersRenderer implements Renderer {
 
+    /****************************************************************************************************************/
+    /****************************************- VARIABLES E INSTANCIAS -**********************************************/
+    /****************************************************************************************************************/
     // Matrices
     private final float[] mProjection = new float[16];
     private final float[] mView = new float[16];
@@ -63,6 +66,10 @@ public class PequeSpidersRenderer implements Renderer {
     public static float   swp = 320.0f;
     public static float   shp = 480.0f;
 
+    /****************************************************************************************************************/
+    /********************************************- onMETODOS -*******************************************************/
+    /****************************************************************************************************************/
+
     public PequeSpidersRenderer(Context c) {
         mContext = c;
         mLastTime = System.currentTimeMillis() + 100;
@@ -99,47 +106,6 @@ public class PequeSpidersRenderer implements Renderer {
         mLastTime = now;
 
     }
-
-    private void Render(float[] m) {
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        // Obtiene las coordenadas exactas del vertex shader que están en vPosition
-        int PosicionDeterminada = glGetAttribLocation(Shader.program_Image, mPosition);
-
-        // Habilita un attribute array generico
-        glEnableVertexAttribArray(PosicionDeterminada);
-
-        // Prepara las coordenadas
-        glVertexAttribPointer(PosicionDeterminada, 3, GL_FLOAT, false, 0, vertexBuffer);
-
-        // Obtiene las coordendas exactas de textura
-        int TexCoordLoc = glGetAttribLocation(Shader.program_Image, atexCoord );
-
-        // Habilita un attribute array generico
-        glEnableVertexAttribArray (TexCoordLoc);
-
-        // Prepara las coordenadas de textura
-        glVertexAttribPointer (TexCoordLoc, 2, GL_FLOAT, false, 0, uvBuffer);
-
-        int mtrxhandle = glGetUniformLocation(Shader.program_Image, mbackground);
-
-        // Aplica las proyecciones y transformaciones
-        glUniformMatrix4fv(mtrxhandle, 1, false, m, 0);
-
-        int mSamplerLoc = glGetUniformLocation (Shader.program_Image, sTexture );
-
-        // Set the sampler texture unit to 0, where we have saved the texture.
-        glUniform1i ( mSamplerLoc, 0);
-
-        // Dibuja el background
-        glDrawElements(GL_TRIANGLES, background.getIndices().length, GL_UNSIGNED_SHORT, drawListBuffer);
-
-        // Deshabilita el vertex array
-        glDisableVertexAttribArray(PosicionDeterminada);
-        glDisableVertexAttribArray(TexCoordLoc);
-
-    }
-
 
     @Override
     public void onSurfaceChanged(GL10 gl, int width, int height) {
@@ -211,6 +177,55 @@ public class PequeSpidersRenderer implements Renderer {
         glUseProgram(Shader.program_Image);
     }
 
+    /****************************************************************************************************************/
+    /********************************************- RENDER -**********************************************************/
+    /****************************************************************************************************************/
+
+    private void Render(float[] m) {
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        // Obtiene las coordenadas exactas del vertex shader que están en vPosition
+        int PosicionDeterminada = glGetAttribLocation(Shader.program_Image, mPosition);
+
+        // Habilita un attribute array generico
+        glEnableVertexAttribArray(PosicionDeterminada);
+
+        // Prepara las coordenadas
+        glVertexAttribPointer(PosicionDeterminada, 3, GL_FLOAT, false, 0, vertexBuffer);
+
+        // Obtiene las coordendas exactas de textura
+        int TexCoordLoc = glGetAttribLocation(Shader.program_Image, atexCoord );
+
+        // Habilita un attribute array generico
+        glEnableVertexAttribArray (TexCoordLoc);
+
+        // Prepara las coordenadas de textura
+        glVertexAttribPointer (TexCoordLoc, 2, GL_FLOAT, false, 0, uvBuffer);
+
+        int mtrxhandle = glGetUniformLocation(Shader.program_Image, mbackground);
+
+        // Aplica las proyecciones y transformaciones
+        glUniformMatrix4fv(mtrxhandle, 1, false, m, 0);
+
+        int mSamplerLoc = glGetUniformLocation (Shader.program_Image, sTexture );
+
+        // Set the sampler texture unit to 0, where we have saved the texture.
+        glUniform1i ( mSamplerLoc, 0);
+
+        // Dibuja el background
+        glDrawElements(GL_TRIANGLES, background.getIndices().length, GL_UNSIGNED_SHORT, drawListBuffer);
+
+        // Deshabilita el vertex array
+        glDisableVertexAttribArray(PosicionDeterminada);
+        glDisableVertexAttribArray(TexCoordLoc);
+
+    }
+
+    /****************************************************************************************************************/
+    /********************************************- TEXTURAS -********************************************************/
+    /****************************************************************************************************************/
+
+
     public void inicializacionTexture(float[] uvS) {
         // Texture buffer Background
         ByteBuffer bb = ByteBuffer.allocateDirect(uvS.length * 4);
@@ -246,22 +261,6 @@ public class PequeSpidersRenderer implements Renderer {
 
     }
 
-    public void inicializacionCoords(float[] vertices, short[] indices) {
-        // Vertex buffer
-        ByteBuffer bb = ByteBuffer.allocateDirect(vertices.length * 4);
-        bb.order(ByteOrder.nativeOrder());
-        vertexBuffer = bb.asFloatBuffer();
-        vertexBuffer.put(vertices);
-        vertexBuffer.position(0);
-
-        // se inicializa un bytebuffer
-        ByteBuffer dlb = ByteBuffer.allocateDirect(indices.length * 2);
-        dlb.order(ByteOrder.nativeOrder());
-        drawListBuffer = dlb.asShortBuffer();
-        drawListBuffer.put(indices);
-        drawListBuffer.position(0);
-    }
-
     public void UpdateSprite() {
         // Get new transformed vertices
         vertices = sprite.getTransformedVertices();
@@ -289,6 +288,30 @@ public class PequeSpidersRenderer implements Renderer {
         else
             ssu = ssx;
     }*/
+
+    /****************************************************************************************************************/
+    /*******************************************- COORDENADAS -******************************************************/
+    /****************************************************************************************************************/
+
+    public void inicializacionCoords(float[] vertices, short[] indices) {
+        // Vertex buffer
+        ByteBuffer bb = ByteBuffer.allocateDirect(vertices.length * 4);
+        bb.order(ByteOrder.nativeOrder());
+        vertexBuffer = bb.asFloatBuffer();
+        vertexBuffer.put(vertices);
+        vertexBuffer.position(0);
+
+        // se inicializa un bytebuffer
+        ByteBuffer dlb = ByteBuffer.allocateDirect(indices.length * 2);
+        dlb.order(ByteOrder.nativeOrder());
+        drawListBuffer = dlb.asShortBuffer();
+        drawListBuffer.put(indices);
+        drawListBuffer.position(0);
+    }
+
+    /****************************************************************************************************************/
+    /**********************************************- TOUCH -*********************************************************/
+    /****************************************************************************************************************/
 
     public void processTouchEvent(MotionEvent event) {
         // Get the half of screen value
