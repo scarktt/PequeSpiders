@@ -16,4 +16,9 @@ public class SpiderUV {
     public float[] getUv(){
         return uvSpider;
     }
+
+    public void setVertices(float[] uv){
+        this.uvSpider = uv;
+    }
+
 }

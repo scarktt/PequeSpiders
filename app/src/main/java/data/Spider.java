@@ -85,4 +85,12 @@ public class Spider {
     public short[] getIndices(){
         return indices;
     }
+
+    public void setVertices(float[] vertices){
+        this.vertices = vertices;
+    }
+
+    public void setIndices(short[] indices){
+        this.indices = indices;
+    }
 }
