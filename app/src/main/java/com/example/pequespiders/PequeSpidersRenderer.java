@@ -179,7 +179,7 @@ public class PequeSpidersRenderer implements Renderer {
         //SetupScaling();
 
         inicializacionCoords(background.getVertices(), background.getIndices());
-        inicializacionTexture(backgroundUV.getUv(), spiderUV.getUv());
+        inicializacionTexture(spiderUV.getUv());
 
         // Se asigna color negro
         glClearColor(0.0f, 0.0f, 0.0f, 1);
@@ -211,29 +211,21 @@ public class PequeSpidersRenderer implements Renderer {
         glUseProgram(Shader.program_Image);
     }
 
-    public void inicializacionTexture(float[] uvB, float[] uvS) {
+    public void inicializacionTexture(float[] uvS) {
         // Texture buffer Background
-        ByteBuffer bb = ByteBuffer.allocateDirect(uvB.length * 4);
+        ByteBuffer bb = ByteBuffer.allocateDirect(uvS.length * 4);
         bb.order(ByteOrder.nativeOrder());
         uvBuffer = bb.asFloatBuffer();
-        uvBuffer.put(uvB);
+        uvBuffer.put(uvS);
         uvBuffer.position(0);
 
         // Se generan las texturas (Si se necesitan más texturas, aumentar el número)
-        int[] textureID = new int[2];
+        int[] textureID = new int[1];
 
         // Se indica el nombre del arreglo de texturas y en índice (0 para la primer textura)
         glGenTextures(1, textureID, 0);
 
-        int id = 0;
-
-        try{
-            // Obtiene la imagen desde los archivos
-            id = mContext.getResources().getIdentifier("drawable/background", null, mContext.getPackageName());
-
-        }catch (Error e){
-            Log.e("Imagen source", "Error al abrir la imagen.");
-        }
+        int id = mContext.getResources().getIdentifier("drawable/spider2", null, mContext.getPackageName());
 
         // se crea un bitmap
         Bitmap bmp = BitmapFactory.decodeResource(mContext.getResources(), id);
@@ -247,43 +239,6 @@ public class PequeSpidersRenderer implements Renderer {
 
         // Se carga la textura indicando que es de tipo 2D
         texImage2D(GL_TEXTURE_2D, 0, bmp, 0);
-
-        // Se indica que se recicle el bitmap (se debe de indicar porque no utilizará
-        // y tampoco será recogido automáticamwnte)
-        bmp.recycle();
-
-        /************************** SPIDER TEXTURE *********************************/
-        // Texture buffer Spider
-        ByteBuffer bb1 = ByteBuffer.allocateDirect(uvS.length * 4);
-        bb1.order(ByteOrder.nativeOrder());
-        uvBuffer = bb1.asFloatBuffer();
-        uvBuffer.put(uvS);
-        uvBuffer.position(0);
-
-        glGenTextures(1, textureID, 1);
-
-        int id_Spider = 0;
-
-        try{
-            // Obtiene la imagen desde los archivos
-            id_Spider = mContext.getResources().getIdentifier("drawable/spider2", null, mContext.getPackageName());
-
-        }catch (Error e){
-            Log.e("Imagen source", "Error al abrir la imagen.");
-        }
-
-        // se crea un bitmap
-        Bitmap bmp1 = BitmapFactory.decodeResource(mContext.getResources(), id_Spider);
-
-        // Se vincula la textura con textureID
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, textureID[1]);
-
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-        // Se carga la textura indicando que es de tipo 2D
-        texImage2D(GL_TEXTURE_2D, 0, bmp1, 0);
 
         // Se indica que se recicle el bitmap (se debe de indicar porque no utilizará
         // y tampoco será recogido automáticamwnte)
