@@ -47,8 +47,8 @@ public class PequeSpidersRenderer implements Renderer {
     private String sTexture = "s_texture";
 
     // Resolucion
-    float mScreenWidth = 1280;
-    float mScreenHeight = 768;
+    float mScreenWidth = 1920;
+    float mScreenHeight = 1080;
     public static float ssu = 1.0f;
     public static float ssx = 1.0f;
     public static float ssy = 1.0f;
