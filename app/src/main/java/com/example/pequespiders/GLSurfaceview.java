@@ -20,9 +20,6 @@ public class GLSurfaceview extends GLSurfaceView {
         // Renderiza la ventana solo cuando hay un cambio en los "dibujos"
         setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
 
-        this.setBackgroundResource(R.drawable.background);
-        this.setZOrderOnTop(true);
-
     }
 
     @Override
