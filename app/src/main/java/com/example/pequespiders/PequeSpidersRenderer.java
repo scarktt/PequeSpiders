@@ -11,7 +11,6 @@ import android.opengl.GLSurfaceView.Renderer;
 import android.view.MotionEvent;
 
 import java.nio.*;
-import java.util.Random;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
@@ -134,14 +133,11 @@ public class PequeSpidersRenderer implements Renderer {
         // Calcula la proyección y transformación
         multiplyMM(mProjectionAndView, 0, mProjection, 0, mView, 0);
 
-        // Sistema de escalamiento
-        SetupScaling();
     }
 
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
-        // Sistema de escalamiento
-        SetupScaling();
+
         // Crea los triangulos
         SetupTriangle();
         // Crea la información para la textura
@@ -209,19 +205,6 @@ public class PequeSpidersRenderer implements Renderer {
     /********************************************- TEXTURAS -********************************************************/
     /****************************************************************************************************************/
 
-    public void UpdateSprite() {
-        // Get new transformed vertices
-        //vertices = sprite.getTransformedVertices();
-
-        // The vertex buffer.
-        ByteBuffer bb = ByteBuffer.allocateDirect(vertices.length * 4);
-        bb.order(ByteOrder.nativeOrder());
-        vertexBuffer = bb.asFloatBuffer();
-        vertexBuffer.put(vertices);
-        vertexBuffer.position(0);
-    }
-
-
     public void SetupImage() {
         // The texture buffer
         ByteBuffer bbBackground = ByteBuffer.allocateDirect(uv.getUv().length * 4);
@@ -274,24 +257,8 @@ public class PequeSpidersRenderer implements Renderer {
     }
 
     /****************************************************************************************************************/
-    /***************************************- ESCALACIÓN Y TOUCH -**************************************************/
+    /*************************************************- TOUCH -******************************************************/
     /****************************************************************************************************************/
-
-    public void SetupScaling() {
-        // The screen resolutions
-        swp = (int) (mContext.getResources().getDisplayMetrics().widthPixels);
-        shp = (int) (mContext.getResources().getDisplayMetrics().heightPixels);
-
-        // Orientation is assumed portrait
-        ssx = swp / 320.0f;
-        ssy = shp / 480.0f;
-
-        // Get our uniform scaler
-        if (ssx > ssy)
-            ssu = ssy;
-        else
-            ssu = ssx;
-    }
 
     public void processTouchEvent(MotionEvent event) {
         // Get the half of screen value
