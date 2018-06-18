@@ -4,6 +4,12 @@ import static android.opengl.GLES20.*;
 import static android.opengl.GLUtils.*;
 import static android.opengl.Matrix.*;
 
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.opengl.GLSurfaceView.Renderer;
+import android.view.MotionEvent;
+
 import java.nio.*;
 import java.util.Random;
 
@@ -12,14 +18,8 @@ import javax.microedition.khronos.opengles.GL10;
 
 import Shader.Shader;
 import Sprite.Sprite;
-import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.opengl.GLSurfaceView.Renderer;
-import android.view.MotionEvent;
-import data.Background;
-import texture.BackgroundUV;
-import texture.SpiderUV;
+import data.Coord;
+import data.UV;
 import util.Reader;
 
 public class PequeSpidersRenderer implements Renderer {
@@ -27,7 +27,7 @@ public class PequeSpidersRenderer implements Renderer {
     /****************************************************************************************************************/
     /****************************************- VARIABLES E INSTANCIAS -**********************************************/
     /****************************************************************************************************************/
-    // MAtrices
+    // Matrices
     private final float[] mProjection = new float[16];
     private final float[] mView = new float[16];
     private final float[] mProjectionAndView = new float[16];
@@ -61,10 +61,9 @@ public class PequeSpidersRenderer implements Renderer {
     int mProgram;
 
     // Instancias
-    public Background background = new Background();
-    public BackgroundUV backgroundUV = new BackgroundUV();
-    public SpiderUV spiderUV = new SpiderUV();
     public Reader readerRaw = new Reader();
+    public Coord coord = new Coord();
+    public UV uv = new UV();
     public Sprite sprite = new Sprite();
 
     /****************************************************************************************************************/
@@ -182,6 +181,7 @@ public class PequeSpidersRenderer implements Renderer {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
+        // Obtiene la ubicación
         int mPositionHandle = glGetAttribLocation(Shader.program_Image, vPosition);
         glVertexAttribPointer(mPositionHandle, 3, GL_FLOAT, false, 0, vertexBuffer);
         glEnableVertexAttribArray(mPositionHandle);
@@ -198,12 +198,11 @@ public class PequeSpidersRenderer implements Renderer {
         glUniform1i(mSamplerLoc, 0);
 
         // Se manda a dibujar
-        glDrawElements(GL_TRIANGLES, indices.length, GL_UNSIGNED_SHORT, drawListBuffer);
+        glDrawElements(GL_TRIANGLES, coord.getIndices().length, GL_UNSIGNED_SHORT, drawListBuffer);
 
         // Deshabilita los vextex array
         glDisableVertexAttribArray(mPositionHandle);
         glDisableVertexAttribArray(mTexCoordLoc);
-
     }
 
     /****************************************************************************************************************/
@@ -224,46 +223,24 @@ public class PequeSpidersRenderer implements Renderer {
 
 
     public void SetupImage() {
-        // We will use a randomizer for randomizing the textures from texture atlas.
-        // This is strictly optional as it only effects the output of our app,
-        // Not the actual knowledge.
-        Random rnd = new Random();
-
-        // 30 imageobjects times 4 vertices times (u and v)
-        uvs = new float[30 * 4 * 2];
-
-        // We will make 30 randomly textures objects
-        for (int i = 0; i < 30; i++) {
-            int random_u_offset = rnd.nextInt(2);
-            int random_v_offset = rnd.nextInt(2);
-
-            // Adding the UV's using the offsets
-            uvs[(i * 8) + 0] = random_u_offset * 0.5f;
-            uvs[(i * 8) + 1] = random_v_offset * 0.5f;
-            uvs[(i * 8) + 2] = random_u_offset * 0.5f;
-            uvs[(i * 8) + 3] = (random_v_offset + 1) * 0.5f;
-            uvs[(i * 8) + 4] = (random_u_offset + 1) * 0.5f;
-            uvs[(i * 8) + 5] = (random_v_offset + 1) * 0.5f;
-            uvs[(i * 8) + 6] = (random_u_offset + 1) * 0.5f;
-            uvs[(i * 8) + 7] = random_v_offset * 0.5f;
-        }
-
         // The texture buffer
-        ByteBuffer bb = ByteBuffer.allocateDirect(uvs.length * 4);
-        bb.order(ByteOrder.nativeOrder());
-        uvBuffer = bb.asFloatBuffer();
-        uvBuffer.put(uvs);
+        ByteBuffer bbBackground = ByteBuffer.allocateDirect(uv.getUv().length * 4);
+        bbBackground.order(ByteOrder.nativeOrder());
+        uvBuffer = bbBackground.asFloatBuffer();
+        uvBuffer.put(uv.getUv());
         uvBuffer.position(0);
 
         // Generate Textures, if more needed, alter these numbers.
         int[] texturenames = new int[1];
         glGenTextures(1, texturenames, 0);
 
+        int[] id = new int[1];
+
         // Retrieve our image from resources.
-        int id = mContext.getResources().getIdentifier("drawable/texturatlas", null, mContext.getPackageName());
+        id[0] = mContext.getResources().getIdentifier("drawable/textureatlas", null, mContext.getPackageName());
 
         // Temporary create a bitmap
-        Bitmap bmp = BitmapFactory.decodeResource(mContext.getResources(), id);
+        Bitmap bmp = BitmapFactory.decodeResource(mContext.getResources(), id[0]);
 
         // Bind texture to texturename
         glActiveTexture(GL_TEXTURE0);
@@ -278,66 +255,21 @@ public class PequeSpidersRenderer implements Renderer {
 
         // We are done using the bitmap so we should recycle it.
         bmp.recycle();
-
     }
 
     public void SetupTriangle() {
-        // We will need a randomizer
-        Random rnd = new Random();
-
-        // Our collection of vertices
-        vertices = new float[30 * 4 * 3];
-
-        // Create the vertex data
-        for (int i = 0; i < 30; i++) {
-            int offset_x = rnd.nextInt((int) swp);
-            int offset_y = rnd.nextInt((int) shp);
-
-            // Create the 2D parts of our 3D vertices, others are default 0.0f
-            vertices[(i * 12) + 0] = offset_x;
-            vertices[(i * 12) + 1] = offset_y + (30.0f * ssu);
-            vertices[(i * 12) + 2] = 0f;
-            vertices[(i * 12) + 3] = offset_x;
-            vertices[(i * 12) + 4] = offset_y;
-            vertices[(i * 12) + 5] = 0f;
-            vertices[(i * 12) + 6] = offset_x + (30.0f * ssu);
-            vertices[(i * 12) + 7] = offset_y;
-            vertices[(i * 12) + 8] = 0f;
-            vertices[(i * 12) + 9] = offset_x + (30.0f * ssu);
-            vertices[(i * 12) + 10] = offset_y + (30.0f * ssu);
-            vertices[(i * 12) + 11] = 0f;
-        }
-
-        // The indices for all textured quads
-        indices = new short[30 * 6];
-        int last = 0;
-        for (int i = 0; i < 30; i++) {
-            // We need to set the new indices for the new quad
-            indices[(i * 6) + 0] = (short) (last + 0);
-            indices[(i * 6) + 1] = (short) (last + 1);
-            indices[(i * 6) + 2] = (short) (last + 2);
-            indices[(i * 6) + 3] = (short) (last + 0);
-            indices[(i * 6) + 4] = (short) (last + 2);
-            indices[(i * 6) + 5] = (short) (last + 3);
-
-            // Our indices are connected to the vertices so we need to keep them
-            // in the correct order.
-            // normal quad = 0,1,2,0,2,3 so the next one will be 4,5,6,4,6,7
-            last = last + 4;
-        }
-
         // The vertex buffer.
-        ByteBuffer bb = ByteBuffer.allocateDirect(vertices.length * 4);
-        bb.order(ByteOrder.nativeOrder());
-        vertexBuffer = bb.asFloatBuffer();
-        vertexBuffer.put(vertices);
+        ByteBuffer bbBackground = ByteBuffer.allocateDirect(coord.getVertices().length * 4);
+        bbBackground.order(ByteOrder.nativeOrder());
+        vertexBuffer = bbBackground.asFloatBuffer();
+        vertexBuffer.put(coord.getVertices());
         vertexBuffer.position(0);
 
         // initialize byte buffer for the draw list
-        ByteBuffer dlb = ByteBuffer.allocateDirect(indices.length * 2);
-        dlb.order(ByteOrder.nativeOrder());
-        drawListBuffer = dlb.asShortBuffer();
-        drawListBuffer.put(indices);
+        ByteBuffer dlbBackground = ByteBuffer.allocateDirect(coord.getIndices().length * 2);
+        dlbBackground.order(ByteOrder.nativeOrder());
+        drawListBuffer = dlbBackground.asShortBuffer();
+        drawListBuffer.put(coord.getIndices());
         drawListBuffer.position(0);
     }
 
