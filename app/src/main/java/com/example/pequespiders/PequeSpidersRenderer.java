@@ -144,10 +144,8 @@ public class PequeSpidersRenderer implements Renderer {
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
 
-        // Crea los triangulos
-        SetupTriangle();
-        // Crea la información para la textura
-        SetupImage();
+        CrearBuffers();
+        CrearTextura();
 
         // Se asigna color negro
         glClearColor(0.0f, 0.0f, 0.0f, 1);
@@ -212,42 +210,32 @@ public class PequeSpidersRenderer implements Renderer {
     /********************************************- TEXTURAS -********************************************************/
     /****************************************************************************************************************/
 
-    public void SetupImage() {
-        // The texture buffer
-        ByteBuffer bbBackground = ByteBuffer.allocateDirect(uv.getUv().length * 4);
-        bbBackground.order(ByteOrder.nativeOrder());
-        uvBuffer = bbBackground.asFloatBuffer();
-        uvBuffer.put(uv.getUv());
-        uvBuffer.position(0);
-
-        // Generate Textures, if more needed, alter these numbers.
-        int[] texturenames = new int[1];
-        glGenTextures(1, texturenames, 0);
+    public void CrearTextura() {
+        // Genera un id de textura en un arreglo que aumenta en dependencia del numero de texturas
+        int[] texture = new int[1];
+        glGenTextures(1, texture, 0);
 
         int[] id = new int[1];
 
-        // Retrieve our image from resources.
+        // Retorna la imagen (textura desde los archivos del proyecto)
         id[0] = mContext.getResources().getIdentifier("drawable/textureatlas", null, mContext.getPackageName());
 
-        // Temporary create a bitmap
+        // Se crea temporalmente un bitmap
         Bitmap bmp = BitmapFactory.decodeResource(mContext.getResources(), id[0]);
 
-        // Bind texture to texturename
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texturenames[0]);
+        glBindTexture(GL_TEXTURE_2D, texture[0]);
 
-        // Set filtering
+        // Asgina los "filtering"
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-        // Load the bitmap into the bound texture.
         texImage2D(GL_TEXTURE_2D, 0, bmp, 0);
 
-        // We are done using the bitmap so we should recycle it.
         bmp.recycle();
     }
 
-    public void SetupTriangle() {
+    public void CrearBuffers() {
         // The vertex buffer.
         ByteBuffer bbBackground = ByteBuffer.allocateDirect(coord.getVertices().length * 4);
         bbBackground.order(ByteOrder.nativeOrder());
@@ -261,6 +249,13 @@ public class PequeSpidersRenderer implements Renderer {
         drawListBuffer = dlbBackground.asShortBuffer();
         drawListBuffer.put(coord.getIndices());
         drawListBuffer.position(0);
+
+        // The texture buffer
+        ByteBuffer uvBackground = ByteBuffer.allocateDirect(uv.getUv().length * 4);
+        uvBackground.order(ByteOrder.nativeOrder());
+        uvBuffer = uvBackground.asFloatBuffer();
+        uvBuffer.put(uv.getUv());
+        uvBuffer.position(0);
     }
 
     /****************************************************************************************************************/
