@@ -39,11 +39,17 @@ public class PequeSpidersRenderer implements Renderer {
     public ShortBuffer drawListBuffer;
     public FloatBuffer uvBuffer;
 
-    // Variables para los Shaders
+    // Variables para los Shaders estaticos
     private String mbackground = "mBackground";
     private String vPosition = "vPosition";
     private String atexCoord = "a_texCoord";
     private String sTexture = "s_texture";
+
+    // Variables para los Shaders dinamicos
+    private String matrix = "matrix";
+    private String vPosition_dinamic = "vPosition";
+    private String atexCoord_dinamic = "a_texCoord";
+    private String sTexture_dinamic = "s_texture";
 
     // Resolucion
     float mScreenWidth = 1920;
@@ -165,6 +171,7 @@ public class PequeSpidersRenderer implements Renderer {
 
         // Se indica que se utilice el programa anteriormente creado
         glUseProgram(Shader.program_Image);
+
     }
 
     /****************************************************************************************************************/

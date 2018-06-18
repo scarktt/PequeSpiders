@@ -25,11 +25,6 @@ public class UV {
                 0.25f, 0.75f,
                 0.25f, 0.25f,
 
-                // Coordenadas spider 1
-                0.0f, 0.75f,
-                0.0f, 1.0f,
-                0.25f, 1.0f,
-                0.25f, 0.75f
         };
     }
 

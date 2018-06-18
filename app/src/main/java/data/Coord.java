@@ -19,12 +19,6 @@ public class Coord {
                 770f, 14.0f, 0.0f, // Esquina inferior derecha
                 770f, 760.0f, 0.0f, // Esquina superior derecha
 
-                // Coordenadas spider 1
-                360f, 800f, 0.0f, // Esquina superior izquierda
-                360f, 600.0f, 0.0f, // Esquina inferior izquierda
-                500f, 600.0f, 0.0f, // Esquina inferior derecha
-                500f, 800f, 0.0f, // Esquina superior derecha
-
         };
 
         // Se reutilizan algunos puntos y para ellos se indica el orden de renderizado

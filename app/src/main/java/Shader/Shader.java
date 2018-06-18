@@ -5,8 +5,8 @@ import android.util.Log;
 
 public class Shader {
 
-    public static int program_SolidColor;
     public static int program_Image;
+    public static int program_ImageDinamic;
 
     public static int loadShader(int type, String shaderCode){
 
