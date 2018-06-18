@@ -7,24 +7,33 @@ public class Coord {
     public Coord(){
         // Se crea el arreglo de coordendas
         vertices = new float[] {
+                // Coordenadas background
                 0.0f, 1920f, 0.0f, // Esquina superior izquierda
                 0.0f, 0.0f, 0.0f, // Esquina inferior izquierda
                 1080f, 0.0f, 0.0f, // Esquina inferior derecha
                 1080f, 1920f, 0.0f, // Esquina superior derecha
 
-                360f, 1800f, 0.0f, // Esquina superior izquierda
-                360f, 1600f, 0.0f, // Esquina inferior izquierda
-                700f, 1600f, 0.0f, // Esquina inferior derecha
-                700f, 1800f, 0.0f, // Esquina superior derecha
+                // Coordenadas del personaje
+                240f, 760.0f, 0.0f, // Esquina superior izquierda
+                240f, 14.0f, 0.0f, // Esquina inferior izquierda
+                770f, 14.0f, 0.0f, // Esquina inferior derecha
+                770f, 760.0f, 0.0f, // Esquina superior derecha
+
+                // Coordenadas spider 1
+                360f, 800f, 0.0f, // Esquina superior izquierda
+                360f, 600.0f, 0.0f, // Esquina inferior izquierda
+                500f, 600.0f, 0.0f, // Esquina inferior derecha
+                500f, 800f, 0.0f, // Esquina superior derecha
+
         };
 
         // Se reutilizan algunos puntos y para ellos se indica el orden de renderizado
         //indices = new short[] {0, 1, 2, 0, 2, 3};
 
         // The indices for all textured quads
-        indices = new short[2*6];
+        indices = new short[3*6];
         int last = 0;
-        for(int i=0;i<2;i++) {
+        for(int i=0;i<3;i++) {
             // We need to set the new indices for the new quad
             indices[(i * 6) + 0] = (short) (last + 0);
             indices[(i * 6) + 1] = (short) (last + 1);
