@@ -19,7 +19,7 @@ import Shader.Shader;
 import Sprite.Sprite;
 import data.Coord;
 import data.UV;
-import util.Reader;
+import Shader.CompilarShader;
 
 public class PequeSpidersRenderer implements Renderer {
 
@@ -40,7 +40,7 @@ public class PequeSpidersRenderer implements Renderer {
     public FloatBuffer uvBuffer;
 
     // Variables para los Shaders estaticos
-    private String mbackground = "mBackground";
+    private String u_matrix = "u_Matrix";
     private String vPosition = "vPosition";
     private String atexCoord = "a_texCoord";
     private String sTexture = "s_texture";
@@ -50,6 +50,12 @@ public class PequeSpidersRenderer implements Renderer {
     private String vPosition_dinamic = "vPosition";
     private String atexCoord_dinamic = "a_texCoord";
     private String sTexture_dinamic = "s_texture";
+
+    // Instancias
+    public CompilarShader compilarShader = new CompilarShader();
+    public Coord coord = new Coord();
+    public UV uv = new UV();
+    public Sprite sprite = new Sprite();
 
     // Resolucion
     float mScreenWidth = 1920;
@@ -64,12 +70,6 @@ public class PequeSpidersRenderer implements Renderer {
     Context mContext;
     long mLastTime;
     int mProgram;
-
-    // Instancias
-    public Reader readerRaw = new Reader();
-    public Coord coord = new Coord();
-    public UV uv = new UV();
-    public Sprite sprite = new Sprite();
 
     /****************************************************************************************************************/
     /************************************- onMETODOS  Y CONSTRUCTOR -************************************************/
@@ -143,7 +143,6 @@ public class PequeSpidersRenderer implements Renderer {
 
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
-
         CrearBuffers();
         CrearTextura();
 
@@ -153,22 +152,7 @@ public class PequeSpidersRenderer implements Renderer {
         glEnable(GL_BLEND);
         glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
-        /* Se crean los shader, para ello se indica que tipo de shader se va a utilizar
-         * [GL_VERTEX_SHADER] o [GL_FRAGMENT_SHADER]
-         * Se llama una función externa [readerRaw.readTextFileFromRawResource] a la que se indica el contexto
-         * y se le indica el archivo que se leerá; esta clase retorna un string con el código del archivo leído
-         * NOTA: Recordar que el shader es un pequeño programa que corre en la GPU
-         * */
-        int vertexShader = Shader.loadShader(GL_VERTEX_SHADER, readerRaw.readTextFileFromRawResource(mContext, R.raw.vertex_shader_texture));
-        int fragmentShader = Shader.loadShader(GL_FRAGMENT_SHADER, readerRaw.readTextFileFromRawResource(mContext, R.raw.fragment_shader_texture));
-
-        Shader.program_Image = glCreateProgram();             // Crea un programa vacío [Cuando se habla de programa se refiere a shaders, esta es la etapa final que contendrá al fragment shader y al vertex shader]
-        glAttachShader(Shader.program_Image, vertexShader);   // Agrega el vertex shader al programa
-        glAttachShader(Shader.program_Image, fragmentShader); // Agrega el fragment shader al programa
-        glLinkProgram(Shader.program_Image);                  // Hace al programa ejecutable
-
-        // Se indica que se utilice el programa anteriormente creado
-        glUseProgram(Shader.program_Image);
+        compilarShader.Compilar(mContext);
 
     }
 
@@ -177,7 +161,6 @@ public class PequeSpidersRenderer implements Renderer {
     /****************************************************************************************************************/
 
     private void Render(float[] m) {
-
         // Limpia la pantalla y el buffer de profundidad (Depth Buffer)
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -191,7 +174,7 @@ public class PequeSpidersRenderer implements Renderer {
         glVertexAttribPointer(mTexCoordLoc, 2, GL_FLOAT, false, 0, uvBuffer);
         glEnableVertexAttribArray(mTexCoordLoc);
 
-        int mtrxhandle = glGetUniformLocation(Shader.program_Image, mbackground);
+        int mtrxhandle = glGetUniformLocation(Shader.program_Image, u_matrix);
         glUniformMatrix4fv(mtrxhandle, 1, false, m, 0);
 
         int mSamplerLoc = glGetUniformLocation(Shader.program_Image, sTexture);
@@ -236,21 +219,21 @@ public class PequeSpidersRenderer implements Renderer {
     }
 
     public void CrearBuffers() {
-        // The vertex buffer.
+        // El vertex buffer
         ByteBuffer bbBackground = ByteBuffer.allocateDirect(coord.getVertices().length * 4);
         bbBackground.order(ByteOrder.nativeOrder());
         vertexBuffer = bbBackground.asFloatBuffer();
         vertexBuffer.put(coord.getVertices());
         vertexBuffer.position(0);
 
-        // initialize byte buffer for the draw list
+        // Inicializado un byte buffer para la lista de dibujo
         ByteBuffer dlbBackground = ByteBuffer.allocateDirect(coord.getIndices().length * 2);
         dlbBackground.order(ByteOrder.nativeOrder());
         drawListBuffer = dlbBackground.asShortBuffer();
         drawListBuffer.put(coord.getIndices());
         drawListBuffer.position(0);
 
-        // The texture buffer
+        // El texture buffer
         ByteBuffer uvBackground = ByteBuffer.allocateDirect(uv.getUv().length * 4);
         uvBackground.order(ByteOrder.nativeOrder());
         uvBuffer = uvBackground.asFloatBuffer();
