@@ -152,21 +152,38 @@ public class PequeSpidersRenderer implements Renderer {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
-        // Obtiene la ubicación
-        int mPositionHandle = glGetAttribLocation(Shader.program_Image, Shader.VPOSITION);
-        glVertexAttribPointer(mPositionHandle, 3, GL_FLOAT, false, 0, vertexBuffer);
+        // Para pasar el vertex data al shader se necesita ubicación de la variable (de tipo vertex attribute)
+        // del vertex shader "VPOSITION" y esta ubicación se obtiene y se almacena en "mPositionHandle"
+        int mPositionHandle = glGetAttribLocation(Shader.program_Image, Shader.V_POSITION);
+        // Se le indica a OpenGL que a continuación se describirá (con glVertexAttribPointer) qué tipo de
+        // información se usará como input al shader en la ubicación encontrada anteriormente
         glEnableVertexAttribArray(mPositionHandle);
+        // Describe como se presentan los datos que sirven como input para el shader (este se asocia a una
+        // variable del shader)
+        glVertexAttribPointer(mPositionHandle, 3, GL_FLOAT, false, 0, vertexBuffer);
 
-        int mTexCoordLoc = glGetAttribLocation(Shader.program_Image, Shader.A_TEXCOORD);
+        // Para pasar las coordenadas de textura al shader se necesita ubicación de la variable del
+        // fragment shader "A_TEXCOORD" y esta ubicación se obtiene y se almacena en "mTexCoordLoc"
+        int mTexCoordLoc = glGetAttribLocation(Shader.program_Image, Shader.INPUT_TEXCOORD);
         glVertexAttribPointer(mTexCoordLoc, 2, GL_FLOAT, false, 0, uvBuffer);
         glEnableVertexAttribArray(mTexCoordLoc);
 
+        // Obtiene la ubicación de la variable del shader al que se transferirán los datos
         int mtrxhandle = glGetUniformLocation(Shader.program_Image, Shader.U_MATRIX);
+
+        // Se le indica que aplique la proyeción y transformación
         glUniformMatrix4fv(mtrxhandle, 1, false, m, 0);
 
-        int mSamplerLoc = glGetUniformLocation(Shader.program_Image, Shader.S_TEXTURE);
+        // Se obtiene la ubicación de la variable "S_TEXTURE" de tipo uniform (variable que almacena la información
+        // de la textura)
+        int ubicacion1 = glGetUniformLocation(Shader.program_Image, Shader.U_TEXTURE);
+        int ubicacion2 = glGetUniformLocation(Shader.program_Image, Shader.U_TEXTURE2);
 
-        glUniform1i(mSamplerLoc, 0);
+        // Para pasar la información de la textura al shader se debe de especificar el número de unidad
+        // de textura que usamos (no el objeto de textura, por ejemplo: de GL_TEXTURE0 se toma el 0 y de GL_TEXTURE1 el 1)
+        // y además asociar la textura que queramos a esa unidad.
+        glUniform1i(ubicacion1, 0);
+        glUniform1i(ubicacion2, 1);
 
         // Se manda a dibujar
         glDrawElements(GL_TRIANGLES, coord.getIndices().length, GL_UNSIGNED_SHORT, drawListBuffer);
@@ -181,28 +198,36 @@ public class PequeSpidersRenderer implements Renderer {
     /****************************************************************************************************************/
 
     public void CrearTextura() {
+        int[] texture = new int[2];
         // Genera un id de textura en un arreglo que aumenta en dependencia del numero de texturas
-        int[] texture = new int[1];
         glGenTextures(1, texture, 0);
 
-        int[] id = new int[1];
+        int[] id = new int[2];
 
         // Retorna la imagen (textura desde los archivos del proyecto)
         id[0] = mContext.getResources().getIdentifier("drawable/textureatlas", null, mContext.getPackageName());
+        id[1] = mContext.getResources().getIdentifier("drawable/texturatlas", null, mContext.getPackageName());
 
         // Se crea temporalmente un bitmap
-        Bitmap bmp = BitmapFactory.decodeResource(mContext.getResources(), id[0]);
+        Bitmap bmp0 = BitmapFactory.decodeResource(mContext.getResources(), id[0]);
+        Bitmap bmp1 = BitmapFactory.decodeResource(mContext.getResources(), id[1]);
 
+        // Activamos una textura
         glActiveTexture(GL_TEXTURE0);
+        // Se indica que textura que se va utilizar (texture[0]) y que tipo de textura es (GL_TEXTURE_2D)
         glBindTexture(GL_TEXTURE_2D, texture[0]);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, texture[1]);
 
         // Asigna los "filtering"
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-        texImage2D(GL_TEXTURE_2D, 0, bmp, 0);
+        texImage2D(GL_TEXTURE_2D, 0, bmp0, 0);
+        texImage2D(GL_TEXTURE_2D, 0, bmp1, 0);
 
-        bmp.recycle();
+        bmp0.recycle();
+        bmp1.recycle();
     }
 
     public void CrearBuffers() {
