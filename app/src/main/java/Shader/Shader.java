@@ -5,6 +5,11 @@ import android.util.Log;
 
 public class Shader {
 
+    public static final String U_MATRIX = "u_Matrix";
+    public static final String VPOSITION = "vPosition";
+    public static final String A_TEXCOORD = "a_texCoord";
+    public static final String S_TEXTURE = "s_texture";
+
     public static int program_Image;
     public static int program_ImageDinamic;
 

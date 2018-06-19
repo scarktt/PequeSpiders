@@ -39,20 +39,9 @@ public class PequeSpidersRenderer implements Renderer {
     public ShortBuffer drawListBuffer;
     public FloatBuffer uvBuffer;
 
-    // Variables para los Shaders estaticos
-    private String u_matrix = "u_Matrix";
-    private String vPosition = "vPosition";
-    private String atexCoord = "a_texCoord";
-    private String sTexture = "s_texture";
-
-    // Variables para los Shaders dinamicos
-    private String matrix = "matrix";
-    private String vPosition_dinamic = "vPosition";
-    private String atexCoord_dinamic = "a_texCoord";
-    private String sTexture_dinamic = "s_texture";
-
     // Instancias
     public CompilarShader compilarShader = new CompilarShader();
+    public Shader shader = new Shader();
     public Coord coord = new Coord();
     public UV uv = new UV();
     public Sprite sprite = new Sprite();
@@ -69,7 +58,6 @@ public class PequeSpidersRenderer implements Renderer {
     // Misc
     Context mContext;
     long mLastTime;
-    int mProgram;
 
     /****************************************************************************************************************/
     /************************************- onMETODOS  Y CONSTRUCTOR -************************************************/
@@ -153,7 +141,6 @@ public class PequeSpidersRenderer implements Renderer {
         glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
         compilarShader.Compilar(mContext);
-
     }
 
     /****************************************************************************************************************/
@@ -166,18 +153,18 @@ public class PequeSpidersRenderer implements Renderer {
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
         // Obtiene la ubicación
-        int mPositionHandle = glGetAttribLocation(Shader.program_Image, vPosition);
+        int mPositionHandle = glGetAttribLocation(Shader.program_Image, Shader.VPOSITION);
         glVertexAttribPointer(mPositionHandle, 3, GL_FLOAT, false, 0, vertexBuffer);
         glEnableVertexAttribArray(mPositionHandle);
 
-        int mTexCoordLoc = glGetAttribLocation(Shader.program_Image, atexCoord);
+        int mTexCoordLoc = glGetAttribLocation(Shader.program_Image, Shader.A_TEXCOORD);
         glVertexAttribPointer(mTexCoordLoc, 2, GL_FLOAT, false, 0, uvBuffer);
         glEnableVertexAttribArray(mTexCoordLoc);
 
-        int mtrxhandle = glGetUniformLocation(Shader.program_Image, u_matrix);
+        int mtrxhandle = glGetUniformLocation(Shader.program_Image, Shader.U_MATRIX);
         glUniformMatrix4fv(mtrxhandle, 1, false, m, 0);
 
-        int mSamplerLoc = glGetUniformLocation(Shader.program_Image, sTexture);
+        int mSamplerLoc = glGetUniformLocation(Shader.program_Image, Shader.S_TEXTURE);
 
         glUniform1i(mSamplerLoc, 0);
 
@@ -209,7 +196,7 @@ public class PequeSpidersRenderer implements Renderer {
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, texture[0]);
 
-        // Asgina los "filtering"
+        // Asigna los "filtering"
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
