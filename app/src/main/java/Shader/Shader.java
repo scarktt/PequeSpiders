@@ -6,12 +6,11 @@ import android.util.Log;
 public class Shader {
 
     public static final String U_MATRIX = "u_Matrix";
-    public static final String VPOSITION = "vPosition";
-    public static final String A_TEXCOORD = "a_texCoord";
-    public static final String S_TEXTURE = "s_texture";
+    public static final String V_POSITION = "v_Position";
+    public static final String INPUT_TEXCOORD = "a_texCoord";
+    public static final String U_TEXTURE = "u_texture";
 
     public static int program_Image;
-    public static int program_ImageDinamic;
 
     public static int loadShader(int type, String shaderCode){
 

@@ -14,7 +14,8 @@ public class CompilarShader {
          * [GL_VERTEX_SHADER] o [GL_FRAGMENT_SHADER]
          * Se llama una función externa [readerRaw.readTextFileFromRawResource] a la que se indica el contexto
          * y se le indica el archivo que se leerá; esta clase retorna un string con el código del archivo leído
-         * NOTA: Recordar que el shader es un pequeño programa que corre en la GPU
+         * NOTA: Recordar que el shader es un programa de OpenGL que esta compuesto por un vertex y un fragment shader
+         * enlazados el uno al otro en un solo objeto.
          * */
         int vertexShader = Shader.loadShader(GL_VERTEX_SHADER, readerRaw.readTextFileFromRawResource(mContext, R.raw.vertex_shader_texture));
         int fragmentShader = Shader.loadShader(GL_FRAGMENT_SHADER, readerRaw.readTextFileFromRawResource(mContext, R.raw.fragment_shader_texture));

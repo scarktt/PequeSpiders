@@ -1,4 +1,4 @@
-package Sprite;
+package Texture;
 
 import android.graphics.PointF;
 import android.graphics.RectF;
